@@ -106,6 +106,82 @@ architecture rtl of xpm_memory_sdpram is
 
   function P_MEMORY_OPTIMIZATION return integer is begin if (MEMORY_OPTIMIZATION = "false") then return 0; else return 1; end if; end function;
   
+  component xpm_memory_base is
+    generic (
+  
+    -- Common module parameters
+      MEMORY_TYPE             : integer := 2;
+      MEMORY_SIZE             : integer := 2048;
+      MEMORY_PRIMITIVE        : integer := 0;
+      CLOCKING_MODE           : integer := 0;
+      ECC_MODE                : integer := 0;
+      MEMORY_INIT_FILE        : string  := "none";
+      MEMORY_INIT_PARAM       : string  := "";
+      USE_MEM_INIT_MMI        : integer := 0;
+      USE_MEM_INIT            : integer := 1;
+      MEMORY_OPTIMIZATION     : integer := 0;
+      WAKEUP_TIME             : integer := 0;
+      AUTO_SLEEP_TIME         : integer := 0;
+      MESSAGE_CONTROL         : integer := 0;
+      USE_EMBEDDED_CONSTRAINT : integer := 0;
+      CASCADE_HEIGHT          : integer := 0;
+      SIM_ASSERT_CHK          : integer := 0;
+      WRITE_PROTECT           : integer := 1;
+    -- Port A module s
+      WRITE_DATA_WIDTH_A      : integer   := 32;
+      READ_DATA_WIDTH_A       : integer   := 32;
+      BYTE_WRITE_WIDTH_A      : integer   := 32;
+      ADDR_WIDTH_A            : integer   := 6;
+      READ_RESET_VALUE_A      : string    := "0";
+      READ_LATENCY_A          : integer   := 2;
+      WRITE_MODE_A            : integer   := 2;
+      RST_MODE_A              : string    := "SYNC";
+  
+    -- Port B module s
+      WRITE_DATA_WIDTH_B      : integer  := 32;
+      READ_DATA_WIDTH_B       : integer  := 32;
+      BYTE_WRITE_WIDTH_B      : integer  := 32;
+      ADDR_WIDTH_B            : integer  := 6;
+      READ_RESET_VALUE_B      : string    := "0";
+      READ_LATENCY_B          : integer  := 2;
+      WRITE_MODE_B            : integer  := 2;
+      RST_MODE_B              : string   := "SYNC"
+  );
+  port (
+   
+    -- Common module ports
+    sleep          : in  std_logic;
+                                                                                
+       -- Port A module ports                                                   
+    clka           : in  std_logic;
+    rsta           : in  std_logic;
+    ena            : in  std_logic;
+    regcea         : in  std_logic;
+    wea            : in  std_logic_vector((WRITE_DATA_WIDTH_A/BYTE_WRITE_WIDTH_A)-1 downto 0);
+    addra          : in  std_logic_vector(ADDR_WIDTH_A-1 downto 0);
+    dina           : in  std_logic_vector(WRITE_DATA_WIDTH_A-1 downto 0);
+    injectsbiterra : in  std_logic;
+    injectdbiterra : in  std_logic;
+    douta          : out std_logic_vector(READ_DATA_WIDTH_A-1 downto 0) := (others => '0');
+    sbiterra       : out std_logic;
+    dbiterra       : out std_logic;
+                                                                                
+       -- Port B module ports                                                   
+    clkb           : in  std_logic;
+    rstb           : in  std_logic;
+    enb            : in  std_logic;
+    regceb         : in  std_logic;
+    web            : in  std_logic_vector((WRITE_DATA_WIDTH_B/BYTE_WRITE_WIDTH_B)-1 downto 0);
+    addrb          : in  std_logic_vector(ADDR_WIDTH_B-1 downto 0);
+    dinb           : in  std_logic_vector(WRITE_DATA_WIDTH_B-1 downto 0);
+    injectsbiterrb : in  std_logic;
+    injectdbiterrb : in  std_logic;
+    doutb          : out std_logic_vector(READ_DATA_WIDTH_B-1 downto 0) := (others => '0');
+    sbiterrb       : out std_logic;
+    dbiterrb       : out std_logic                                                            
+  );
+  end component;
+
 begin
 
 
@@ -113,7 +189,7 @@ begin
   -- Base module instantiation with simple dual port RAM configuration
   -- -------------------------------------------------------------------------------------------------------------------
 
-  xpm_memory_base_inst: entity work.xpm_memory_base 
+  xpm_memory_base_inst: xpm_memory_base 
   generic map (
 
     -- Common module parameters
